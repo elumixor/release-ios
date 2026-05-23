@@ -1,6 +1,6 @@
 {
   "name": "@elumixor/release-ios",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bump iOS marketing version, commit, tag, and push — a one-shot release script for Capacitor/native iOS apps",
   "license": "MIT",
   "type": "module",
@@ -10,7 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/elumixor/release-ios.git"
   },
-  "keywords": ["ios", "release", "fastlane", "capacitor", "testflight", "xcode", "agvtool"],
+  "keywords": [
+    "ios",
+    "release",
+    "fastlane",
+    "capacitor",
+    "testflight",
+    "xcode",
+    "agvtool"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -20,7 +28,9 @@
   "bin": {
     "release-ios": "dist/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "bun build src/cli.ts src/index.ts --outdir dist --target node --sourcemap=external && tsc --project tsconfig.build.json",
     "lint": "biome lint src",
