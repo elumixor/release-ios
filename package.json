@@ -1,6 +1,6 @@
 {
   "name": "@elumixor/release-ios",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Bump iOS marketing version, commit, tag, and push — a one-shot release script for Capacitor/native iOS apps",
   "license": "MIT",
   "type": "module",
