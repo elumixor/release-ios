@@ -1,0 +1,39 @@
+{
+  "name": "@elumixor/release-ios",
+  "version": "0.1.0",
+  "description": "Bump iOS marketing version, commit, tag, and push — a one-shot release script for Capacitor/native iOS apps",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elumixor/release-ios.git"
+  },
+  "keywords": ["ios", "release", "fastlane", "capacitor", "testflight", "xcode", "agvtool"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "release-ios": "dist/cli.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "bun build src/cli.ts src/index.ts --outdir dist --target node --sourcemap=external && tsc --project tsconfig.build.json",
+    "lint": "biome lint src",
+    "format": "biome format src --write",
+    "prepublishOnly": "bun run build",
+    "release:patch": "npm version patch -m \"Release v%s\" && git push --tags && git push",
+    "release:minor": "npm version minor -m \"Release v%s\" && git push --tags && git push",
+    "release:major": "npm version major -m \"Release v%s\" && git push --tags && git push"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.8",
+    "@types/bun": "latest",
+    "@types/node": "^22",
+    "typescript": "^6.0.3"
+  }
+}
