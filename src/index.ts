@@ -1,4 +1,5 @@
 import { execFileSync, execSync } from "node:child_process";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 export interface ReleaseOptions {
@@ -25,6 +26,25 @@ export interface ReleaseResult {
 const sh = (cmd: string, args: string[], cwd: string): string =>
   execFileSync(cmd, args, { cwd, encoding: "utf8" }).trim();
 
+function readMarketingVersion(iosAppDir: string): string {
+  // agvtool reads CFBundleShortVersionString from Info.plist. When the plist
+  // uses $(MARKETING_VERSION), agvtool returns the placeholder — fall back to
+  // parsing the .xcodeproj/project.pbxproj for the actual build setting.
+  const fromAgv = sh("xcrun", ["agvtool", "what-marketing-version", "-terse1"], iosAppDir);
+  if (/^\d+\.\d+/.test(fromAgv)) return fromAgv;
+
+  const xcodeproj = readdirSync(iosAppDir).find((f) => f.endsWith(".xcodeproj"));
+  if (!xcodeproj) throw new Error(`No .xcodeproj found in ${iosAppDir}`);
+  const pbxproj = readFileSync(resolve(iosAppDir, xcodeproj, "project.pbxproj"), "utf8");
+  const match = pbxproj.match(/MARKETING_VERSION\s*=\s*([0-9]+(?:\.[0-9]+){1,2})/);
+  if (!match) throw new Error(`MARKETING_VERSION not found in ${xcodeproj}/project.pbxproj`);
+  // Normalize 1.0 → 1.0.0 so bumping works
+  const v = match[1] as string;
+  const parts = v.split(".");
+  while (parts.length < 3) parts.push("0");
+  return parts.join(".");
+}
+
 function bumpVersion(current: string, bump: string): string {
   if (/^\d+\.\d+\.\d+$/.test(bump)) return bump;
   const match = current.match(/^(\d+)\.(\d+)\.(\d+)$/);
@@ -43,7 +63,7 @@ export function release(opts: ReleaseOptions = {}): ReleaseResult {
   const tagPrefix = opts.tagPrefix ?? "ios-v";
   const remote = opts.remote ?? "origin";
 
-  const previous = sh("xcrun", ["agvtool", "what-marketing-version", "-terse1"], iosAppDir);
+  const previous = readMarketingVersion(iosAppDir);
   const next = bumpVersion(previous, bump);
   const tag = `${tagPrefix}${next}`;
 
